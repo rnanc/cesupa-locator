@@ -39,8 +39,8 @@ export default function App() {
       coord: {
         latitude: -1.4501912,
         longitude: -48.4796603,
-        latitudeDelta:  0.09,
-        longitudeDelta: 0.0401,
+        latitudeDelta:  0.01,
+        longitudeDelta: 0.01,
       },
       imagem: CesupaARGO,
     },
@@ -50,8 +50,8 @@ export default function App() {
       coord: {
         latitude: -1.4453173,
         longitude: -48.4806399,
-        latitudeDelta:  0.09,
-        longitudeDelta: 0.0401,
+        latitudeDelta:  0.01,
+        longitudeDelta: 0.01,
       },
       imagem: CesupaDireito,
     },
@@ -61,8 +61,8 @@ export default function App() {
       coord: {
         latitude: -1.4482234,
         longitude: -48.478396,
-        latitudeDelta:  0.09,
-        longitudeDelta: 0.0401,
+        latitudeDelta:  0.01,
+        longitudeDelta: 0.01,
       },
       imagem: CesupaEng,
     },
@@ -96,8 +96,8 @@ export default function App() {
       coord:  {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta:  0.09,
-        longitudeDelta: 0.0401,
+        latitudeDelta:  0.01,
+        longitudeDelta: 0.01,
       }
     };
 
