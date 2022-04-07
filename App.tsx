@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet, Image, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-import { FAB, Portal, Provider } from "react-native-paper";
+import { FAB, Modal, Portal, Provider } from "react-native-paper";
 import {CesupaARGO, CesupaDireito, CesupaEng, CesupaMed} from "./Images"
 
 interface User {
@@ -17,17 +17,20 @@ interface User {
 }
 
 export default function App() {
-  const zoom = 0.01
   
-  const [region, setRegion] = useState({
+  const [mapFocus, setMapFocus] = useState({
     latitude: -1.4450688,
     longitude: -48.4605952,
-    latitudeDelta: zoom,
-    longitudeDelta: zoom,
+    latitudeDelta:  0.09,
+    longitudeDelta: 0.0401,
   });
 
   const [user, SetUser] = useState<User>();
-  const [open, setOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
+
+  const toggleMenu = () => {
+    setOpenMenu(!openMenu)
+  }
 
   const CESUPA = [
     {
@@ -36,8 +39,8 @@ export default function App() {
       coord: {
         latitude: -1.4501912,
         longitude: -48.4796603,
-        latitudeDelta: zoom,
-        longitudeDelta: zoom,
+        latitudeDelta:  0.09,
+        longitudeDelta: 0.0401,
       },
       imagem: CesupaARGO,
     },
@@ -47,8 +50,8 @@ export default function App() {
       coord: {
         latitude: -1.4453173,
         longitude: -48.4806399,
-        latitudeDelta: zoom,
-        longitudeDelta: zoom,
+        latitudeDelta:  0.09,
+        longitudeDelta: 0.0401,
       },
       imagem: CesupaDireito,
     },
@@ -58,8 +61,8 @@ export default function App() {
       coord: {
         latitude: -1.4482234,
         longitude: -48.478396,
-        latitudeDelta: zoom,
-        longitudeDelta: zoom,
+        latitudeDelta:  0.09,
+        longitudeDelta: 0.0401,
       },
       imagem: CesupaEng,
     },
@@ -69,8 +72,8 @@ export default function App() {
       coord: {
         latitude: -1.4190961,
         longitude: -48.4499243,
-        latitudeDelta: zoom,
-        longitudeDelta: zoom,
+        latitudeDelta:  0.09,
+        longitudeDelta: 0.0401,
       },
       imagem: CesupaMed,
     },
@@ -86,19 +89,19 @@ export default function App() {
     let location = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Highest,
     });
-    const userLocation = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: zoom,
-      longitudeDelta: zoom,
-    };
+
     const user: User = {
       title: "Você",
       description: "Sua localização",
-      coord: userLocation,
+      coord:  {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta:  0.09,
+        longitudeDelta: 0.0401,
+      }
     };
 
-    setRegion(userLocation);
+    setMapFocus(user.coord);
     SetUser(user);
   };
 
@@ -106,16 +109,19 @@ export default function App() {
     getLocation();
   }, []);
 
+  
   return (
     <Provider>
-      <MapView style={styles.container} region={region} mapType={"standard"}>
+      <MapView style={styles.container} region={mapFocus} mapType={"standard"}>
+        { user ?
         <Marker
-          key={user?.description}
-          coordinate={user?.coord ? user.coord : region}
-          title={user?.title}
-          description={user?.description}
+          key={user.description}
+          coordinate={user.coord}
+          title={user.title}
+          description={user.description}
           pinColor="#ff0000"
-        />
+        /> :
+        null}
         {CESUPA &&
           CESUPA.map((cesupa) => (
             <Marker
@@ -132,44 +138,29 @@ export default function App() {
           ))}
       </MapView>
       <Portal>
-        <FAB.Group
-          visible={true}
-          open={open}
-          icon={open ? "crosshairs" : "map-search"}
-          actions={[
-            {
-              icon: "crosshairs",
-              label: "CESUPA ARGO",
-              color: '#053F66',
-              onPress: () => setRegion(CESUPA[0].coord),
-            },
-            {
-              icon: "crosshairs",
-              label: "CESUPA DIREITO",
-              color: '#e75005',
-              onPress: () => setRegion(CESUPA[1].coord),
-            },
-            {
-              icon: "crosshairs",
-              label: "CESUPA MALCHER",
-              color: '#f4d805',
-              onPress: () => setRegion(CESUPA[2].coord),
-            },
-            {
-              icon: "crosshairs",
-              label: "CESUPA MEDICINA",
-              color: '#0bd719',
-              onPress: () => setRegion(CESUPA[3].coord),
-            },
-            {
-              icon: "pin",
-              label: "USUÁRIO",
-              color: '#af1804',
-              onPress: () => setRegion(user?.coord ? user.coord : region),
-            },
-          ]}
-          onStateChange={({ open }) => setOpen(open)}
-        />
+        <Modal visible={openMenu} onDismiss={toggleMenu} contentContainerStyle={{backgroundColor: 'white', padding: 20}}>
+          <View style={{display: "flex", justifyContent: "space-between"}}>
+          <FAB style={styles.fabItem} icon="crosshairs" label= "CESUPA ARGO"
+              color= '#053F66'
+                onPress ={ () => {setMapFocus(CESUPA[0].coord); toggleMenu()}}/>
+          <FAB style={styles.fabItem} icon="crosshairs" label= "CESUPA DIREITO"
+              color= '#e75005'
+              onPress ={ () => {setMapFocus(CESUPA[1].coord), toggleMenu()}}/>
+          <FAB style={styles.fabItem} icon="crosshairs" label= "CESUPA MALCHER"
+              color= '#f4d805'
+              onPress ={ () => {setMapFocus(CESUPA[2].coord); toggleMenu()}}/>
+          <FAB style={styles.fabItem} icon="crosshairs" label= "CESUPA MEDICINA"
+              color= '#0bd719'
+              onPress ={ () => {setMapFocus(CESUPA[3].coord), toggleMenu()}}/>
+          <FAB style={styles.fabItem} icon="pin" label= "USUÁRIO"
+              color= '#af1804'
+              onPress ={ () => {setMapFocus(user?.coord ? user.coord : mapFocus); toggleMenu()}}/>
+          </View>
+        </Modal>
+        <FAB icon="map-search"
+              style={styles.fab}
+              color= '#053F66'
+              onPress ={toggleMenu}/>
       </Portal>
     </Provider>
   );
@@ -186,5 +177,8 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+  },
+  fabItem: {
+    margin: 16,
   },
 });
